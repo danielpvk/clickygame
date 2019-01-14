@@ -7,6 +7,16 @@ import Container from "./components/Container/Container";
 import Column from "./components/Column/column";
 import Row from "./components/Row/row";
 import climbers from "./components/climbers.json";
+
+// Random shuffle
+function randomClimbers(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
 class App extends Component {
   state = {
     climbers,
@@ -16,6 +26,68 @@ class App extends Component {
     clicked: [],
     currentTime: 30,
 
+  };
+  
+
+  setInterval = () => {
+    this.interval = setInterval(this.tick, 1000)
+  }
+
+  tick = () => {
+    if (this.state.currentTime > 0) {
+      this.setState({currentTime: this.state.currentTime - 1})
+    } else {
+      this.handleReset()
+    }
+  }
+
+  handleReset = () => {
+    console.log('handle reset was called!')
+    clearInterval(this.interval)
+
+    this.setState({
+      currentScore: 0,
+      topScore: 0,
+      correctIncorrect: "You guessed incorrectly!",
+      clicked: [],
+      currentTime: 30,
+    });
+    this.setInterval()
+    this.handleShuffle();
+  }
+
+  handleClick = id => {
+    if (this.state.clicked.length === 0) {
+      this.handleReset()
+    }
+    if (this.state.clicked.indexOf(id) === -1) {
+      this.handleIncrement();
+      this.setState({ clicked: this.state.clicked.concat(id) });
+    } else {
+      this.handleReset();
+    }
+  };
+
+  handleIncrement = () => {
+    const newScore = this.state.currentScore + 1;
+    this.setState({
+      currentScore: newScore,
+      correctIncorrect: "You guessed correctly!"
+    });
+    if (newScore >= this.state.topScore) {
+      this.setState({ topScore: newScore });
+    }
+    else if (newScore === 19) {
+      this.setState({ correctIncorrect: "You win!" });
+    }
+    this.handleShuffle();
+  };
+
+
+
+  handleShuffle = () => {
+    let shuffledClimbers = randomClimbers(climbers);
+    this.setState({ climbers: shuffledClimbers });
   };
 
 
